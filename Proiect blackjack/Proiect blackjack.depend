@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1482586169 source:e:\facultate\c++\introducerea in programre\proiect blackjack\main.cpp
+	<iostream>
+	<fstream>
+	<stdlib.h>
+
