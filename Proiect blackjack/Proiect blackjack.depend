@@ -4,3 +4,11 @@
 	<fstream>
 	<stdlib.h>
 
+1482871358 source:e:\github\blackjack_ip\proiect blackjack\main.cpp
+	<iostream>
+	<fstream>
+	<windows.h>
+	<conio.h>
+	<stdlib.h>
+	<time.h>
+
