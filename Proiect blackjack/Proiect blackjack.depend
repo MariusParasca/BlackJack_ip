@@ -12,3 +12,14 @@
 	<stdlib.h>
 	<time.h>
 
+1483039862 source:g:\github\blackjack_ip\proiect blackjack\main.cpp
+	"blackjack.h"
+
+1483039955 g:\github\blackjack_ip\proiect blackjack\blackjack.h
+	<iostream>
+	<fstream>
+	<windows.h>
+	<conio.h>
+	<stdlib.h>
+	<time.h>
+

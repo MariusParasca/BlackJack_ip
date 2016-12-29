@@ -1,29 +1,25 @@
-#include <iostream>
-#include <fstream>
-#include <windows.h>
-#include <conio.h>
-#include <stdlib.h>
-#include <time.h>
+#include "blackjack.h"
 
 using namespace std;
 
-struct searchValidationPlayer
+void displayPlay(Player player, string playerCards[], int indexPlayer,
+                 Player computer, string computerCards[], int indexComputer)
 {
-    string username;
-    string password;
-    int money;
-    int validation;
-};
+    system("cls");
+    cout << "        Black Jack\n\n";
+    cout << "\n Your bet: $" << player.bet;
+    cout << "\n Money left: $" << player.money;
+    cout << "\n\nComputer/House score: " << computer.score;
+    cout << "\nComputer/House cards: ";
+    for(int i = 0; i < indexComputer; i++)
+        cout << computerCards[i] << " " ;
+    cout << "\n\nYour Score: " << player.score;
+    cout << "\nYour cards: ";
+    for(int i = 0; i < indexPlayer; i++)
+        cout << playerCards[i] << " " ;
+}
 
-struct Player
-{
-    string username;
-    string card;
-    int numberCard;
-    int money;
-};
-
-Player randomCard(Player &player)
+void randomCard(Player &player)
 {
     string suits[] = {"Club", "Diamond", "Hart", "Spade"};
     string ranks[] = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Ace", "Jack", "Queen", "King"};
@@ -48,28 +44,135 @@ Player randomCard(Player &player)
             player.card = ranks[indexRank] + "_of_" + suits[indexSuit];
             break;
     }
-    return player;
+}
 
+void addNumberCheckAce(Player &player)
+{
+    if(player.numberCard == 11 && (player.score + player.numberCard) > 21)
+        player.score += 1;
+    else
+        player.score += player.numberCard;
+}
+
+void getCard(Player &player, string playerCards[],  int &index)
+{
+    randomCard(player);
+    playerCards[index++] = player.card;
+    addNumberCheckAce(player);
+}
+
+void computerPlaying(Player &player, string playerCards[], int indexPlayer,
+                     Player &computer,  string computerCards[], int &indexComputer)
+{
+    do
+    {
+        getCard(computer, computerCards, indexComputer);
+        Sleep(500);
+        displayPlay(player, playerCards, indexPlayer, computer, computerCards, indexComputer);
+        if(player.score > 21 || computer.score == 21)
+            break;
+    }while(player.score >= computer.score);
+
+    if(player.score > 21 || (player.score < computer.score && computer.score <= 21))
+        cout << "\n\nComputer/House won!";
+    else if(computer.score > player.score)
+    {
+        cout << "\n\nYou won!";
+        player.money += 2*player.bet;
+    }
+    else if(player.score == 21 && computer.score == 21)
+        cout << "\n\nComputer/House won!";
+    cout << "\nDo you want to play again?";
+    cout << "\nYes [y] or No [n]\n";
+    char option;
+    do
+    {
+        option = getche();
+        switch(option)
+        {
+            case 'y':
+                system("cls");
+                playComputer(player);
+                break;
+            case 'n':
+                exit(0);
+                break;
+            default:
+                cout << "\nYou pressed a wrong button! Try again\n";
+        }
+    }while(option != 'y' || option != 'n');
+}
+
+void playing(Player &player, string playerCards[], int &indexPlayer,
+            Player &computer,  string computerCards[], int &indexComputer)
+{
+    char option;
+    cout << "\nHit [h] or Stay [s]\n";
+    do
+    {
+        option = getche();
+        switch(option)
+        {
+            case 'h':
+                getCard(player, playerCards, indexPlayer);
+                displayPlay(player, playerCards, indexPlayer, computer, computerCards, indexComputer);
+                playing(player, playerCards, indexPlayer, computer, computerCards, indexComputer);
+                break;
+            case 's':
+                computerPlaying(player, playerCards, indexPlayer, computer, computerCards, indexComputer);
+                break;
+            default:
+                cout << "\nYou pressed a wrong button! Try again\n";
+        }
+    }while(option != 'h' || option != 's');
+}
+
+void wrongBet(Player player)
+{
+    cout << "\nYou bet to much!";
+    cout << "\nPress [1] to retry\n";
+    char option;
+    do
+    {
+        option = getche();
+        switch(option)
+        {
+            case '1':
+                system("cls");
+                playComputer(player);
+                break;
+            default:
+                cout << "\nYou pressed a wrong button! Try again\n";
+        }
+    }while(option != '1');
 }
 
 void playComputer(Player player)
 {
-    int bet;
-    int currentNumberCard;
     srand (time(NULL));
-    randomCard(player);
-    int firstNumberCard = player.numberCard;
-    string firstCard = player.card;
-    randomCard(player);
-    int secondNumberCard = player.numberCard;
-    string secondCard = player.card;
+    int indexPlayer = 0;
+    player.score = 0;
+    string playerCards[11];
+    getCard(player, playerCards, indexPlayer);
+    getCard(player, playerCards, indexPlayer);
+    string computerCards[11];
+    Player computer;
+    int indexComputer = 0;
+    computer.score = 0;
+    getCard(computer, computerCards, indexComputer);
     cout << "        Black Jack\n\n";
     cout << player.username << " money: $" << player.money;
-    cout << "\nPlace your bet: "; cin >> bet;
-    cout << "\n Your bet: $" << bet;
-    cout << "\n Money left: $" << player.money - bet;
-    cout << "\nScore: " << firstNumberCard + secondNumberCard;
-    cout << "\nYour first two cards: " << firstCard << " " << secondCard;
+    cout << "\nPlace your bet: "; cin >> player.bet;
+    if(player.money == 0)
+    {
+        cout << "\nYou are out of money! You can not play on this account!\n\n";
+        exit(0);
+    }
+    else if(player.money - player.bet < 0)
+        wrongBet(player);
+    player.money -= player.bet;
+    displayPlay(player, playerCards, indexPlayer, computer, computerCards, indexComputer);
+    playing(player, playerCards, indexPlayer, computer, computerCards, indexComputer);
 }
 
 searchValidationPlayer searchForExistatingAccount(string username, string password, bool ok)
@@ -236,8 +339,8 @@ void userAccount()
     }while(option != '1' || option != '2');
 }
 
-
 int main()
 {
     userAccount();
+    return 0;
 }
