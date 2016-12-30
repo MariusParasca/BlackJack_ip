@@ -61,6 +61,47 @@ void getCard(Player &player, string playerCards[],  int &index)
     addNumberCheckAce(player);
 }
 
+void updateData(Player &player)
+{
+    string username, password;
+    int money;
+    ifstream playersData;
+    ofstream temp;
+    playersData.open("players.dat", fstream::in);
+    temp.open("temp.dat", fstream::out);
+    playersData >> username;
+    playersData >> password;
+    playersData >> money;
+    while(!playersData.eof())
+    {
+        if(username == player.username)
+        {
+            temp << username << " ";
+            temp << password << " ";
+            temp << player.money;
+            temp << endl;
+        }
+        else
+        {
+            temp << username << " ";
+            temp << password << " ";
+            temp << money;
+            temp << endl;
+        }
+        playersData >> username;
+        playersData >> password;
+        playersData >> money;
+    }
+    playersData.close();
+    temp.close();
+    rename("players.dat", "1.dat");
+    rename("temp.dat", "players.dat");
+    rename("1.dat", "temp.dat");
+    ofstream clean;
+    clean.open("temp.dat", ofstream::out | ofstream::trunc);
+    clean.close();
+}
+
 void computerPlaying(Player &player, string playerCards[], int indexPlayer,
                      Player &computer,  string computerCards[], int &indexComputer)
 {
@@ -95,6 +136,7 @@ void computerPlaying(Player &player, string playerCards[], int indexPlayer,
                 playComputer(player);
                 break;
             case 'n':
+                updateData(player);
                 exit(0);
                 break;
             default:
@@ -165,6 +207,7 @@ void playComputer(Player player)
     cout << "\nPlace your bet: "; cin >> player.bet;
     if(player.money == 0)
     {
+        updateData(player);
         cout << "\nYou are out of money! You can not play on this account!\n\n";
         exit(0);
     }
@@ -178,8 +221,8 @@ void playComputer(Player player)
 searchValidationPlayer searchForExistatingAccount(string username, string password, bool ok)
 {
     searchValidationPlayer searchPlayer;
-    fstream playersData;
-    playersData.open("players.dat", ios::in);
+    ifstream playersData;
+    playersData.open("players.dat", fstream::in);
     if(playersData.is_open())
     {
         while(!playersData.eof())
@@ -214,6 +257,17 @@ searchValidationPlayer searchForExistatingAccount(string username, string passwo
     return searchPlayer;
 }
 
+void loading(string name)
+{
+    cout << " Preparing the game with " << name << "\n\n              ";
+    for(int i = 0; i < 7; i++)
+    {
+        cout << "*";
+        Sleep(300);
+    }
+    system("cls");
+}
+
 void menu(Player player)
 {
     cout << "        Black Jack\n\n";
@@ -227,6 +281,7 @@ void menu(Player player)
         {
             case '1':
                 system("cls");
+                loading("the computer");
                 playComputer(player);
                 break;
             case '2':
@@ -243,11 +298,19 @@ void logIn()
     string username, password;
     cout << "        Log in!\n\n";
     cout << "Username: "; cin >> username;
-    cout << "Password: "; cin >> password;
+    cout << "Password: ";
+    char character;
+    character = getch();
+    while(character != 13)
+    {
+        password.push_back(character);
+        cout << "*";
+        character = getch();
+    }
     searchValidationPlayer checkPlayer = searchForExistatingAccount(username, password, false);
     if(checkPlayer.validation == -1)
     {
-        cout << "Username or password wrong! Press [1] to retry!\n";
+        cout << "\nUsername or password wrong! Press [1] to retry!\n";
         char option;
         do
         {
@@ -263,8 +326,8 @@ void logIn()
         }while(option != '1');
     }
     else
-        cout << "Log in succesfully!\n";
-    Sleep(1000);
+        cout << "\nLog in succesfully!\n";
+    Sleep(500);
     system("cls");
     Player player;
     player.username = checkPlayer.username;
@@ -276,10 +339,18 @@ void newAccount()
 {
     string username, password;
     const int money = 100;
-    fstream playersData;
+    ofstream playersData;
     cout << "        Create new account!\n\n";
     cout << "Username: "; cin >> username;
-    cout << "Password: "; cin >> password;
+    cout << "Password: ";
+    char character;
+    character = getch();
+    while(character != 13)
+    {
+        password.push_back(character);
+        cout << "*";
+        character = getch();
+    }
     searchValidationPlayer checkPlayer = searchForExistatingAccount(username, password, true);
     system ("cls");
     if(checkPlayer.validation == 1)
@@ -289,10 +360,11 @@ void newAccount()
     }
     else
     {
-        playersData.open("players.dat", ios::app);
+        playersData.open("players.dat", fstream::app);
         playersData << username << " ";
         playersData << password << " ";
-        playersData << money << endl;
+        playersData << money;
+        playersData << endl;
         playersData.close();
         cout << "You have registered successfully\n";
         cout << "Press [1] to log in\n";

@@ -34,6 +34,7 @@ void displayPlay(Player player, string playerCards[], int indexPlayer,
 void randomCard(Player &player);
 void addNumberCheckAce(Player &player);
 void getCard(Player &player, string playerCards[],  int &index);
+void updateData(Player &player);
 void computerPlaying(Player &player, string playerCards[], int indexPlayer,
                      Player &computer,  string computerCards[], int &indexComputer);
 void playing(Player &player, string playerCards[], int &indexPlayer,
@@ -41,6 +42,7 @@ void playing(Player &player, string playerCards[], int &indexPlayer,
 void wrongBet(Player player);
 void playComputer(Player player);
 searchValidationPlayer searchForExistatingAccount(string username, string password, bool ok);
+void loading(string name);
 void menu(Player player);
 void logIn();
 void newAccount();
