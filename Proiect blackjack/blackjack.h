@@ -41,7 +41,7 @@ void playing(Player &player, string playerCards[], int &indexPlayer,
             Player &computer,  string computerCards[], int &indexComputer);
 void wrongBet(Player player);
 void playComputer(Player player);
-searchValidationPlayer searchForExistatingAccount(string username, string password, bool ok);
+searchValidationPlayer searchForAccount(string username, string password, bool ok);
 void loading(string name);
 void menu(Player player);
 void logIn();

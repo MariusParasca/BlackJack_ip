@@ -72,26 +72,32 @@ void updateData(Player &player)
     playersData >> username;
     playersData >> password;
     playersData >> money;
-    while(!playersData.eof())
+    if(playersData.is_open() && temp.is_open())
     {
-        if(username == player.username)
+        while(!playersData.eof())
         {
-            temp << username << " ";
-            temp << password << " ";
-            temp << player.money;
-            temp << endl;
+            if(username == player.username)
+            {
+                temp << username << " ";
+                temp << password << " ";
+                temp << player.money;
+                temp << endl;
+            }
+            else
+            {
+                temp << username << " ";
+                temp << password << " ";
+                temp << money;
+                temp << endl;
+            }
+            playersData >> username;
+            playersData >> password;
+            playersData >> money;
         }
-        else
-        {
-            temp << username << " ";
-            temp << password << " ";
-            temp << money;
-            temp << endl;
-        }
-        playersData >> username;
-        playersData >> password;
-        playersData >> money;
     }
+    else
+        cout << "Error loading the file!";
+
     playersData.close();
     temp.close();
     rename("players.dat", "1.dat");
@@ -218,7 +224,7 @@ void playComputer(Player player)
     playing(player, playerCards, indexPlayer, computer, computerCards, indexComputer);
 }
 
-searchValidationPlayer searchForExistatingAccount(string username, string password, bool ok)
+searchValidationPlayer searchForAccount(string username, string password, bool ok)
 {
     searchValidationPlayer searchPlayer;
     ifstream playersData;
@@ -248,7 +254,7 @@ searchValidationPlayer searchForExistatingAccount(string username, string passwo
         }
     }
     else
-        cout << "Error file!";
+        cout << "Error loading the file!";
     playersData.close();
     if(ok)
         searchPlayer.validation = 2;
@@ -268,11 +274,38 @@ void loading(string name)
     system("cls");
 }
 
+void consultPlayerMoney(Player player)
+{
+    string username;
+    cout << "        Consult money!\n";
+    searchValidationPlayer checkPlayerMoney = searchForAccount(player.username, "", true);
+    cout << endl;
+    if(checkPlayerMoney.validation == 1)
+    {
+        cout << checkPlayerMoney.username << " money are: " << checkPlayerMoney.money;
+        cout << " \nPress [1] to return to menu\n";
+        char option;
+        do
+        {
+            option = getche();
+            switch(option)
+            {
+                case '1':
+                    system("cls");
+                    menu(player);
+                    break;
+                default:
+                    cout << "\nYou pressed a wrong button! Try again\n";
+            }
+        }while(option != '1');
+    }
+}
+
 void menu(Player player)
 {
     cout << "        Black Jack\n\n";
     cout << "Please select one of the options!";
-    cout << "\n[1] Play with computer \n[2] Play with a friend \n";
+    cout << "\n[1] Play with computer \n[2] Play with a friend \n[3] Consult your money \n[4] Change/update your data";
     char option;
     do
     {
@@ -287,10 +320,18 @@ void menu(Player player)
             case '2':
                 //playPlayer();
                 break;
+            case '3':
+                system("cls");
+                consultPlayerMoney(player);
+                break;
+            case '4':
+                system("cls");
+
+                break;
             default:
                 cout << "\nYou pressed a wrong button! Try again\n";
         }
-    }while(option != '1' || option != '2');
+    }while(option != '1' || option != '2' || option != '3' || option != '4');
 }
 
 void logIn()
@@ -307,7 +348,7 @@ void logIn()
         cout << "*";
         character = getch();
     }
-    searchValidationPlayer checkPlayer = searchForExistatingAccount(username, password, false);
+    searchValidationPlayer checkPlayer = searchForAccount(username, password, false);
     if(checkPlayer.validation == -1)
     {
         cout << "\nUsername or password wrong! Press [1] to retry!\n";
@@ -351,7 +392,7 @@ void newAccount()
         cout << "*";
         character = getch();
     }
-    searchValidationPlayer checkPlayer = searchForExistatingAccount(username, password, true);
+    searchValidationPlayer checkPlayer = searchForAccount(username, password, true);
     system ("cls");
     if(checkPlayer.validation == 1)
     {
@@ -413,6 +454,7 @@ void userAccount()
 
 int main()
 {
+    system("color 0f");
     userAccount();
     return 0;
 }
