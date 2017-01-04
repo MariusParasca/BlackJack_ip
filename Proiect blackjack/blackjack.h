@@ -42,6 +42,23 @@ void playing(Player &player, string playerCards[], int &indexPlayer,
             Player &computer,  string computerCards[], int &indexComputer);
 void wrongBet(Player &player);
 void playComputer(Player &player);
+void winner(Player &player, Player &secondPlayer, Player &computer);
+void secondComputerPlaying(Player &player, Player &computer, string computerCards[], int &indexComputer,
+            Player &secondPlayer, string secondPlayerCards[],int &indexSecondPlayer);
+void secondPlayerPlaying(Player &player, Player &computer,  string computerCards[], int &indexComputer,
+            Player &secondPlayer, string secondPlayerCards[], int &indexSecondPlayer);
+void secondWrongBet(Player &player, Player &computer, string computerCards[], int &indexComputer,
+                     Player &secondPlayer, bool first);
+void firstTwoCardsSecondPlayer(Player &player, Player &computer,  string computerCards[], int &indexComputer,
+            Player &secondPlayer);
+void firstPlayerPlaying(Player &player, string playerCards[], int &indexPlayer,
+            Player &computer,  string computerCards[], int &indexComputer,
+            Player &secondPlayer);
+void playPlayer(Player &player, Player &secondPlayer);
+void returnToSecondLogIn(Player &player);
+void secondLogIn(Player &player);
+void secondNewAccount(Player &player);
+void secondPlayer(Player &player);
 searchValidationPlayer searchForAccount(string username, string password, bool ok);
 void loading(string name);
 void returnToMenu(Player &player);

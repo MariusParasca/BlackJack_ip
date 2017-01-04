@@ -12,10 +12,10 @@
 	<stdlib.h>
 	<time.h>
 
-1483514253 source:g:\github\blackjack_ip\proiect blackjack\main.cpp
+1483565010 source:g:\github\blackjack_ip\proiect blackjack\main.cpp
 	"blackjack.h"
 
-1483450441 g:\github\blackjack_ip\proiect blackjack\blackjack.h
+1483564769 g:\github\blackjack_ip\proiect blackjack\blackjack.h
 	<iostream>
 	<fstream>
 	<windows.h>
