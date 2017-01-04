@@ -61,7 +61,7 @@ void getCard(Player &player, string playerCards[],  int &index)
     addNumberCheckAce(player);
 }
 
-void updateData(Player &player)
+void updateData(Player &player, bool ok)
 {
     string username, password;
     int money;
@@ -76,19 +76,38 @@ void updateData(Player &player)
     {
         while(!playersData.eof())
         {
-            if(username == player.username)
+            if(!ok)
+                if(username == player.username)
+                {
+                    temp << username << " ";
+                    temp << password << " ";
+                    temp << player.money;
+                    temp << endl;
+                }
+                else
+                {
+                    temp << username << " ";
+                    temp << password << " ";
+                    temp << money;
+                    temp << endl;
+                }
+            else if(ok)
             {
-                temp << username << " ";
-                temp << password << " ";
-                temp << player.money;
-                temp << endl;
-            }
-            else
-            {
-                temp << username << " ";
-                temp << password << " ";
-                temp << money;
-                temp << endl;
+                if((username != player.username && password == player.password && money == player.money) ||
+                   (username == player.username && password != player.password && money == player.money))
+                {
+                    temp << player.username << " ";
+                    temp << player.password << " ";
+                    temp << player.money;
+                    temp << endl;
+                }
+                else
+                {
+                    temp << username << " ";
+                    temp << password << " ";
+                    temp << money;
+                    temp << endl;
+                }
             }
             playersData >> username;
             playersData >> password;
@@ -142,7 +161,7 @@ void computerPlaying(Player &player, string playerCards[], int indexPlayer,
                 playComputer(player);
                 break;
             case 'n':
-                updateData(player);
+                updateData(player, false);
                 exit(0);
                 break;
             default:
@@ -175,7 +194,7 @@ void playing(Player &player, string playerCards[], int &indexPlayer,
     }while(option != 'h' || option != 's');
 }
 
-void wrongBet(Player player)
+void wrongBet(Player &player)
 {
     cout << "\nYou bet to much!";
     cout << "\nPress [1] to retry\n";
@@ -195,7 +214,7 @@ void wrongBet(Player player)
     }while(option != '1');
 }
 
-void playComputer(Player player)
+void playComputer(Player &player)
 {
     srand (time(NULL));
     int indexPlayer = 0;
@@ -213,7 +232,7 @@ void playComputer(Player player)
     cout << "\nPlace your bet: "; cin >> player.bet;
     if(player.money == 0)
     {
-        updateData(player);
+        updateData(player, false);
         cout << "\nYou are out of money! You can not play on this account!\n\n";
         exit(0);
     }
@@ -274,38 +293,161 @@ void loading(string name)
     system("cls");
 }
 
-void consultPlayerMoney(Player player)
+void returnToMenu(Player &player)
+{
+    cout << " \nPress [1] to return to menu\n";
+    char option;
+    do
+    {
+        option = getche();
+        switch(option)
+        {
+            case '1':
+                system("cls");
+                menu(player);
+                break;
+            default:
+                cout << "\nYou pressed a wrong button! Try again\n";
+        }
+    }while(option != '1');
+}
+
+void consultPlayerMoney(Player &player)
 {
     string username;
     cout << "        Consult money!\n";
-    searchValidationPlayer checkPlayerMoney = searchForAccount(player.username, "", true);
     cout << endl;
-    if(checkPlayerMoney.validation == 1)
+    cout << player.username << " money are: " << player.money;
+    returnToMenu(player);
+}
+
+void changeUsername(Player &player)
+{
+    cout << "        Change username\n\n";
+    cout << "The old username is: " << player.username;
+    cout << "\nEnter the new username: ";
+    string newUsername;
+    cin >> newUsername;
+    searchValidationPlayer checkUsername = searchForAccount(newUsername, "", true);
+    if(checkUsername.validation == 2)
     {
-        cout << checkPlayerMoney.username << " money are: " << checkPlayerMoney.money;
-        cout << " \nPress [1] to return to menu\n";
-        char option;
-        do
-        {
-            option = getche();
-            switch(option)
-            {
-                case '1':
-                    system("cls");
-                    menu(player);
-                    break;
-                default:
-                    cout << "\nYou pressed a wrong button! Try again\n";
-            }
-        }while(option != '1');
+        player.username = newUsername;
+        updateData(player, true);
+        cout << "\nYou changed the username succesfully!";
+        returnToMenu(player);
+    }
+    else
+    {
+        cout << "\nThe username already exist!";
+        returnToMenu(player);
     }
 }
 
-void menu(Player player)
+void hidePassword(string &password)
+{
+    char character;
+    character = getch();
+    while(character != 13)
+    {
+        if(character != '\b')
+        {
+            password.push_back(character);
+            cout << "*";
+        }
+        if(character == 8 && password.length() > 0)
+        {
+            cout << "\b \b";
+            password.pop_back();
+        }
+        character = getch();
+    }
+}
+
+void changePassword(Player &player)
+{
+    cout << "        Change password\n\n";
+    cout << "\nEnter the new password: ";
+    string newPassword;
+    hidePassword(newPassword);
+    player.password = newPassword;
+    updateData(player, true);
+    cout << "\nYou changed your password succesfully!";
+    returnToMenu(player);
+}
+
+void changeMoney(Player &player)
+{
+    cout << "        Change money\n\n";
+    cout << "\nIf you are administrator enter the password to change money player: ";
+    string password;
+    hidePassword(password);
+    if(password == "parola")
+    {
+        cout << "\nThe current " << player.username << " money are: $" << player.money;
+        int money;
+        cout << "\nHow much money do you want to subtract to the current amount of money? ";
+        cin >> money;
+        if(money < 0)
+            money = 0;
+        player.money -= money;
+        if(player.money < 0)
+            player.money = 0;
+        cout << "\nHow much money do you want to add to the current amount of money? ";
+        cin >> money;
+        player.money += money;
+        cout << "\nThe new amount of " << player.username << " money is: $" << player.money;
+        updateData(player, false);
+        cout << "\nYou update the money succesfully!";
+        returnToMenu(player);
+    }
+    else
+    {
+        cout << "\nPassword wrong!\n";
+        returnToMenu(player);
+    }
+}
+
+void changeData(Player &player)
+{
+    cout << "        Change/update data\n\n";
+    cout << "Please select one of the options!";
+    cout << "\n[1] Change username";
+    cout << "\n[2] Change password";
+    cout << "\n[3] Change the number of money (administrator only)";
+    cout << "\n[4] Go back to menu\n";
+    char option;
+    do
+    {
+        option = getche();
+        switch(option)
+        {
+            case '1':
+                system("cls");
+                changeUsername(player);
+                break;
+            case '2':
+                system("cls");
+                changePassword(player);
+                break;
+            case '3':
+                system("cls");
+                changeMoney(player);
+                break;
+            case '4':
+                system("cls");
+                menu(player);
+                break;
+            default:
+                cout << "\nYou pressed a wrong button! Try again\n";
+        }
+    }while(option != '1' || option != '2' || option != '3' || option != '4');
+}
+
+void menu(Player &player)
 {
     cout << "        Black Jack\n\n";
     cout << "Please select one of the options!";
-    cout << "\n[1] Play with computer \n[2] Play with a friend \n[3] Consult your money \n[4] Change/update your data";
+    cout << "\n[1] Play with computer \n[2] Play with a friend \n[3] Consult your money \n[4] Change/update your data\n";
     char option;
     do
     {
@@ -318,6 +460,7 @@ void menu(Player player)
                 playComputer(player);
                 break;
             case '2':
+                system("cls");
                 //playPlayer();
                 break;
             case '3':
@@ -326,7 +469,7 @@ void menu(Player player)
                 break;
             case '4':
                 system("cls");
-
+                changeData(player);
                 break;
             default:
                 cout << "\nYou pressed a wrong button! Try again\n";
@@ -336,19 +479,13 @@ void menu(Player player)
 
 void logIn()
 {
-    string username, password;
+    Player player;
     cout << "        Log in!\n\n";
-    cout << "Username: "; cin >> username;
+    cout << "Username: "; cin >> player.username;
     cout << "Password: ";
-    char character;
-    character = getch();
-    while(character != 13)
-    {
-        password.push_back(character);
-        cout << "*";
-        character = getch();
-    }
-    searchValidationPlayer checkPlayer = searchForAccount(username, password, false);
+    hidePassword(player.password);
+    searchValidationPlayer checkPlayer = searchForAccount(player.username, player.password, false);
+    player.money = checkPlayer.money;
     if(checkPlayer.validation == -1)
     {
         cout << "\nUsername or password wrong! Press [1] to retry!\n";
@@ -370,29 +507,19 @@ void logIn()
         cout << "\nLog in succesfully!\n";
     Sleep(500);
     system("cls");
-    Player player;
-    player.username = checkPlayer.username;
-    player.money = checkPlayer.money;
     menu(player);
 }
 
 void newAccount()
 {
-    string username, password;
-    const int money = 100;
+    Player player;
+    player.money = 100;
     ofstream playersData;
     cout << "        Create new account!\n\n";
-    cout << "Username: "; cin >> username;
+    cout << "Username: "; cin >> player.username;
     cout << "Password: ";
-    char character;
-    character = getch();
-    while(character != 13)
-    {
-        password.push_back(character);
-        cout << "*";
-        character = getch();
-    }
-    searchValidationPlayer checkPlayer = searchForAccount(username, password, true);
+    hidePassword(player.password);
+    searchValidationPlayer checkPlayer = searchForAccount(player.username, player.password, true);
     system ("cls");
     if(checkPlayer.validation == 1)
     {
@@ -402,9 +529,9 @@ void newAccount()
     else
     {
         playersData.open("players.dat", fstream::app);
-        playersData << username << " ";
-        playersData << password << " ";
-        playersData << money;
+        playersData << player.username << " ";
+        playersData << player.password << " ";
+        playersData << player.money;
         playersData << endl;
         playersData.close();
         cout << "You have registered successfully\n";

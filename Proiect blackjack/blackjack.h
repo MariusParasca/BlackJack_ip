@@ -22,6 +22,7 @@ struct searchValidationPlayer
 struct Player
 {
     string username;
+    string password;
     string card;
     int numberCard;
     int bet;
@@ -34,16 +35,23 @@ void displayPlay(Player player, string playerCards[], int indexPlayer,
 void randomCard(Player &player);
 void addNumberCheckAce(Player &player);
 void getCard(Player &player, string playerCards[],  int &index);
-void updateData(Player &player);
+void updateData(Player &player, bool ok);
 void computerPlaying(Player &player, string playerCards[], int indexPlayer,
                      Player &computer,  string computerCards[], int &indexComputer);
 void playing(Player &player, string playerCards[], int &indexPlayer,
             Player &computer,  string computerCards[], int &indexComputer);
-void wrongBet(Player player);
-void playComputer(Player player);
+void wrongBet(Player &player);
+void playComputer(Player &player);
 searchValidationPlayer searchForAccount(string username, string password, bool ok);
 void loading(string name);
-void menu(Player player);
+void returnToMenu(Player &player);
+void consultPlayerMoney(Player &player);
+void changeUsername(Player &player);
+void hidePassword(string &password);
+void changePassword(Player &player);
+void changeMoney(Player &player);
+void changeData(Player &player);
+void menu(Player &player);
 void logIn();
 void newAccount();
 void userAccount();
