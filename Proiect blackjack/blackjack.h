@@ -36,7 +36,7 @@ void randomCard(Player &player);
 void addNumberCheckAce(Player &player);
 void getCard(Player &player, string playerCards[],  int &index);
 void updateData(Player &player, bool ok);
-void computerPlaying(Player &player, string playerCards[], int indexPlayer,
+void computerPlaying(Player &player, string playerCards[], int &indexPlayer,
                      Player &computer,  string computerCards[], int &indexComputer);
 void playing(Player &player, string playerCards[], int &indexPlayer,
             Player &computer,  string computerCards[], int &indexComputer);
@@ -50,7 +50,7 @@ void secondPlayerPlaying(Player &player, Player &computer,  string computerCards
 void secondWrongBet(Player &player, Player &computer, string computerCards[], int &indexComputer,
                      Player &secondPlayer, bool first);
 void firstTwoCardsSecondPlayer(Player &player, Player &computer,  string computerCards[], int &indexComputer,
-            Player &secondPlayer);
+            Player &secondPlayer, bool firstBlackJack);
 void firstPlayerPlaying(Player &player, string playerCards[], int &indexPlayer,
             Player &computer,  string computerCards[], int &indexComputer,
             Player &secondPlayer);
