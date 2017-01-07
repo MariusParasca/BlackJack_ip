@@ -30,6 +30,7 @@ struct Player
     int money;
 };
 
+
 void displayPlay(Player player, string playerCards[], int indexPlayer,
                  Player computer, string computerCards[], int indexComputer);
 void randomCard(Player &player);
@@ -37,18 +38,19 @@ void addNumberCheckAce(Player &player);
 void getCard(Player &player, string playerCards[],  int &index);
 void updateData(Player &player, bool ok);
 void computerPlaying(Player &player, string playerCards[], int &indexPlayer,
-                     Player &computer,  string computerCards[], int &indexComputer);
+                     Player &computer,  string computerCards[], int &indexComputer, bool blackJack);
 void playing(Player &player, string playerCards[], int &indexPlayer,
-            Player &computer,  string computerCards[], int &indexComputer);
+            Player &computer, string computerCards[], int &indexComputer);
 void wrongBet(Player &player);
 void playComputer(Player &player);
-void winner(Player &player, Player &secondPlayer, Player &computer);
+void winner(Player &player, Player &secondPlayer, Player &computer, bool firstBlackJack, bool secondBlackJack);
 void secondComputerPlaying(Player &player, Player &computer, string computerCards[], int &indexComputer,
-            Player &secondPlayer, string secondPlayerCards[],int &indexSecondPlayer);
+            Player &secondPlayer, string secondPlayerCards[],int &indexSecondPlayer,
+            bool firstBlackJack, bool secondBlackJack);
 void secondPlayerPlaying(Player &player, Player &computer,  string computerCards[], int &indexComputer,
-            Player &secondPlayer, string secondPlayerCards[], int &indexSecondPlayer);
+            Player &secondPlayer, string secondPlayerCards[], int &indexSecondPlayer, bool firstBlackJack);
 void secondWrongBet(Player &player, Player &computer, string computerCards[], int &indexComputer,
-                     Player &secondPlayer, bool first);
+                     Player &secondPlayer, bool first, bool firstBlackJack);
 void firstTwoCardsSecondPlayer(Player &player, Player &computer,  string computerCards[], int &indexComputer,
             Player &secondPlayer, bool firstBlackJack);
 void firstPlayerPlaying(Player &player, string playerCards[], int &indexPlayer,

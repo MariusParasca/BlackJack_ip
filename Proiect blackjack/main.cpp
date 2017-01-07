@@ -128,14 +128,21 @@ void updateData(Player &player, bool ok)
 }
 
 void computerPlaying(Player &player, string playerCards[], int &indexPlayer,
-                     Player &computer,  string computerCards[], int &indexComputer, bool blackJack) ////!!!
+                     Player &computer,  string computerCards[], int &indexComputer, bool blackJack)
 {
     do
     {
-        getCard(computer, computerCards, indexComputer);
         Sleep(500);
+        if(blackJack)
+        {
+            getCard(computer, computerCards, indexComputer);
+            displayPlay(player, playerCards, indexPlayer, computer, computerCards, indexComputer);
+            break;
+        }
+        else
+            getCard(computer, computerCards, indexComputer);
         displayPlay(player, playerCards, indexPlayer, computer, computerCards, indexComputer);
-        if(player.score > 21)
+        if(player.score > 21 )
             break;
     }while(computer.score < 17);
 
@@ -190,6 +197,8 @@ void playing(Player &player, string playerCards[], int &indexPlayer,
     char option;
     if(player.score == 21 && indexPlayer == 2)
         cout << "";
+    else if(indexPlayer == 2 && player.money >= 2*player.bet)
+        cout << "\n\nHit [h] , Stay [s] or Double[d]\n";
     else
         cout << "\n\nHit [h] or Stay [s]\n";
     do
@@ -216,10 +225,18 @@ void playing(Player &player, string playerCards[], int &indexPlayer,
                 computerPlaying(player, playerCards, indexPlayer,
                                 computer, computerCards, indexComputer, blackJack);
                 break;
+            case 'd':
+                player.bet = 2*player.bet;
+                getCard(player, playerCards, indexPlayer);
+                displayPlay(player, playerCards, indexPlayer,
+                            computer, computerCards, indexComputer);
+                computerPlaying(player, playerCards, indexPlayer,
+                                computer, computerCards, indexComputer, blackJack);
+                break;
             default:
                 cout << "\nYou pressed a wrong button! Try again\n";
         }
-    }while(option != 'h' || option != 's');
+    }while(option != 'h' || option != 's' || option != 'd');
 }
 
 void wrongBet(Player &player)
@@ -248,8 +265,6 @@ void playComputer(Player &player)
     int indexPlayer = 0;
     player.score = 0;
     string playerCards[11];
-    getCard(player, playerCards, indexPlayer);
-    getCard(player, playerCards, indexPlayer);
     string computerCards[11];
     Player computer;
     int indexComputer = 0;
@@ -264,8 +279,10 @@ void playComputer(Player &player)
         cout << "\nYou are out of money! You can not play on this account!\n\n";
         exit(0);
     }
-    else if(player.money - player.bet < 0 || player.bet == 0)
+    else if(player.money - player.bet < 0 || player.bet <= 0)
         wrongBet(player);
+    getCard(player, playerCards, indexPlayer);
+    getCard(player, playerCards, indexPlayer);
     displayPlay(player, playerCards, indexPlayer,
                 computer, computerCards, indexComputer);
     playing(player, playerCards, indexPlayer,
@@ -278,7 +295,9 @@ void winner(Player &player, Player &secondPlayer, Player &computer, bool firstBl
     cout << secondPlayer.username << " score: " << secondPlayer.score << endl;
     cout << "Computer/House score: " << computer.score << endl;
 
-    if(firstBlackJack && computer.score != 21)
+    if(player.score == 0)
+        cout << "\n\n" << player.username << " is out of money!";
+    else if(firstBlackJack && computer.score != 21)
     {
         cout << "\n\n" << player.username << ": BlackJack! ";
         player.money += player.bet + player.bet/2;
@@ -299,9 +318,11 @@ void winner(Player &player, Player &secondPlayer, Player &computer, bool firstBl
         player.money -= player.bet;
     }
 
-    if(secondBlackJack && computer.score != 21)
+    if(secondPlayer.score == 0)
+        cout << "\n\n" << secondPlayer.username << " is out of money!";
+    else if(secondBlackJack && computer.score != 21)
     {
-        cout << "\n\n" << secondPlayer.username << ": BlackJack! ";
+        cout << "\n" << secondPlayer.username << ": BlackJack! ";
         secondPlayer.money += secondPlayer.bet + secondPlayer.bet/2;
     }
     else if((computer.score > secondPlayer.score && secondPlayer.score <= 21 && computer.score > 21) ||
@@ -349,8 +370,16 @@ void secondComputerPlaying(Player &player, Player &computer, string computerCard
 {
     do
     {
-        getCard(computer, computerCards, indexComputer);
         Sleep(500);
+        if(firstBlackJack && secondBlackJack)
+        {
+            getCard(computer, computerCards, indexComputer);
+            displayPlay(secondPlayer, secondPlayerCards, indexSecondPlayer,
+                        computer, computerCards, indexComputer);
+            break;
+        }
+        else
+            getCard(computer, computerCards, indexComputer);
         displayPlay(secondPlayer, secondPlayerCards, indexSecondPlayer,
                     computer, computerCards, indexComputer);
         if(player.score > 21 && secondPlayer.score > 21)
@@ -364,14 +393,16 @@ void secondComputerPlaying(Player &player, Player &computer, string computerCard
 void secondPlayerPlaying(Player &player, Player &computer,  string computerCards[], int &indexComputer,
             Player &secondPlayer, string secondPlayerCards[], int &indexSecondPlayer, bool firstBlackJack)
 {
+    bool secondBlackJack = false;
     char option;
     if(secondPlayer.score == 21 && indexSecondPlayer == 2)
         cout << "";
+    else if(indexSecondPlayer == 2 && secondPlayer.money >= 2*secondPlayer.bet)
+        cout << "\n\nHit [h] , Stay [s] or Double[d]\n";
     else
         cout << "\n\nHit [h] or Stay [s]\n";
     do
     {
-        bool secondBlackJack = false;
         if(secondPlayer.score > 21)
             option = 's';
         else if(secondPlayer.score == 21 && indexSecondPlayer == 2)
@@ -391,6 +422,15 @@ void secondPlayerPlaying(Player &player, Player &computer,  string computerCards
                                     secondPlayer, secondPlayerCards, indexSecondPlayer, firstBlackJack);
                 break;
             case 's':
+                secondComputerPlaying(player, computer, computerCards, indexComputer,
+                                      secondPlayer, secondPlayerCards, indexSecondPlayer,
+                                      firstBlackJack, secondBlackJack);
+                break;
+            case 'd':
+                secondPlayer.bet = 2*secondPlayer.bet;
+                getCard(secondPlayer, secondPlayerCards, indexSecondPlayer);
+                displayPlay(secondPlayer, secondPlayerCards, indexSecondPlayer,
+                            computer, computerCards, indexComputer);
                 secondComputerPlaying(player, computer, computerCards, indexComputer,
                                       secondPlayer, secondPlayerCards, indexSecondPlayer,
                                       firstBlackJack, secondBlackJack);
@@ -436,13 +476,16 @@ void firstTwoCardsSecondPlayer(Player &player, Player &computer,  string compute
     cout << "\nPlace your bet: "; cin >> secondPlayer.bet;
     if(secondPlayer.money == 0)
     {
-        updateData(secondPlayer, false);
+        secondPlayer.bet = 0;
         cout << "\nYou are out of money! You can not play on this account!\n\n";
-        exit(0);
+        Sleep(2000);
+        system("cls");
+        secondComputerPlaying(player, computer, computerCards, indexComputer,
+                                      secondPlayer, secondPlayerCards, indexSecondPlayer,
+                                      firstBlackJack, false);
     }
-    else if(secondPlayer.money - secondPlayer.bet < 0 || secondPlayer.bet == 0)
+    else if(secondPlayer.money - secondPlayer.bet < 0 || secondPlayer.bet <= 0)
         secondWrongBet(player, computer, computerCards, indexComputer, secondPlayer, false, firstBlackJack);
-
     getCard(secondPlayer, secondPlayerCards, indexSecondPlayer);
     getCard(secondPlayer, secondPlayerCards, indexSecondPlayer);
     displayPlay(secondPlayer, secondPlayerCards, indexSecondPlayer,
@@ -459,6 +502,8 @@ void firstPlayerPlaying(Player &player, string playerCards[], int &indexPlayer,
     char option;
     if((player.score == 21 && indexPlayer == 2) || player.score > 21)
         cout << "";
+    else if(indexPlayer == 2 && player.money >= 2*player.bet)
+        cout << "\n\nHit [h] , Stay [s] or Double[d]\n";
     else
         cout << "\n\nHit [h] or Stay [s]\n";
     do
@@ -492,6 +537,15 @@ void firstPlayerPlaying(Player &player, string playerCards[], int &indexPlayer,
                 system("cls");
                 firstTwoCardsSecondPlayer(player, computer, computerCards, indexComputer, secondPlayer, firstBlackJack);
                 break;
+            case 'd':
+                player.bet = 2*player.bet;
+                getCard(player, playerCards, indexPlayer);
+                displayPlay(player, playerCards, indexPlayer,
+                            computer, computerCards, indexComputer);
+                Sleep(500);
+                system("cls");
+                firstTwoCardsSecondPlayer(player, computer, computerCards, indexComputer, secondPlayer, firstBlackJack);
+                break;
             default:
                 cout << "\nYou pressed a wrong button! Try again\n";
         }
@@ -505,8 +559,6 @@ void playPlayer(Player &player, Player &secondPlayer)
     player.score = 0;
     secondPlayer.score = 0;
     string playerCards[11];
-    getCard(player, playerCards, indexPlayer);
-    getCard(player, playerCards, indexPlayer);
     string computerCards[11];
     Player computer;
     int indexComputer = 0;
@@ -517,13 +569,17 @@ void playPlayer(Player &player, Player &secondPlayer)
     cout << "\nPlace your bet: "; cin >> player.bet;
     if(player.money == 0)
     {
-        updateData(player, false);
+        player.bet = 0;
         cout << "\nYou are out of money! You can not play on this account!\n\n";
-        exit(0);
+        Sleep(2000);
+        system("cls");
+        firstTwoCardsSecondPlayer(player, computer, computerCards, indexComputer, secondPlayer, false);
     }
-    else if(player.money - player.bet < 0 || player.bet == 0)
+    else if(player.money - player.bet < 0 || player.bet <= 0)
         secondWrongBet(player, computer, computerCards, indexComputer,
                        secondPlayer, true, false);
+    getCard(player, playerCards, indexPlayer);
+    getCard(player, playerCards, indexPlayer);
     displayPlay(player, playerCards, indexPlayer,
                 computer, computerCards, indexComputer);
     firstPlayerPlaying(player, playerCards, indexPlayer,
